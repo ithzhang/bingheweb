@@ -1164,8 +1164,41 @@ img {
   font-size: 17px;
 }
 
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
 .register-page {
   background: var(--paper);
+}
+
+.register-page .site-header {
+  padding-right: 98px;
+}
+
+.register-close {
+  position: fixed;
+  z-index: 45;
+  top: 18px;
+  right: 28px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+  font-size: 28px;
+  line-height: 1;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.register-close:hover {
+  background: var(--red);
+  transform: translateY(-2px);
 }
 
 .register-hero {
@@ -1175,45 +1208,13 @@ img {
 
 .register-layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 0.72fr);
-  gap: 74px;
-  align-items: center;
-}
-
-.register-copy h1 {
-  max-width: 640px;
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(36px, 5vw, 62px);
-  line-height: 1.12;
-}
-
-.register-copy p:not(.eyebrow) {
-  max-width: 620px;
-  margin: 22px 0 0;
-  color: var(--muted);
-  font-size: 18px;
-}
-
-.register-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 34px;
-}
-
-.register-meta span {
-  padding: 7px 12px;
-  border: 1px solid rgba(23, 24, 25, 0.12);
-  background: rgba(255, 255, 255, 0.56);
-  color: #34383b;
-  font-size: 13px;
-  font-weight: 700;
+  justify-items: center;
 }
 
 .lead-form {
   display: grid;
   gap: 18px;
+  width: min(560px, 100%);
   padding: 34px;
   background: var(--white);
   box-shadow: 0 24px 60px rgba(18, 22, 24, 0.12);
@@ -1222,6 +1223,16 @@ img {
 .form-field {
   display: grid;
   gap: 8px;
+}
+
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .form-field label {
@@ -1303,6 +1314,89 @@ img {
   color: var(--red);
 }
 
+.lead-modal {
+  position: fixed;
+  z-index: 70;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.lead-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lead-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 17, 18, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.lead-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow-y: auto;
+  background: var(--white);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+  transform: translateY(16px) scale(0.98);
+  transition: transform 0.22s ease;
+}
+
+.lead-modal.open .lead-modal-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.lead-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(23, 24, 25, 0.12);
+  background: var(--white);
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.lead-modal-close:hover {
+  background: var(--red);
+  color: var(--white);
+}
+
+.lead-modal-head {
+  padding: 34px 34px 0;
+}
+
+.lead-modal-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.modal-form {
+  width: 100%;
+  box-shadow: none;
+}
+
+body.lead-modal-open {
+  overflow: hidden;
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -1343,8 +1437,7 @@ img {
   .split-layout,
   .service-grid,
   .case-layout,
-  .contact-layout,
-  .register-layout {
+  .contact-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1378,9 +1471,6 @@ img {
     grid-template-columns: 1fr;
   }
 
-  .register-layout {
-    gap: 38px;
-  }
 }
 
 @media (max-width: 780px) {
@@ -1405,6 +1495,17 @@ img {
 
   .brand-text small {
     display: none;
+  }
+
+  .register-page .site-header {
+    padding-right: 68px;
+  }
+
+  .register-close {
+    top: 13px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
   }
 
   .nav-toggle {
@@ -1578,6 +1679,10 @@ img {
     font-size: 24px;
   }
 
+  .map-actions .btn {
+    width: 100%;
+  }
+
   .register-hero {
     padding-top: 104px;
   }
@@ -1586,8 +1691,20 @@ img {
     padding: 24px;
   }
 
-  .register-copy p:not(.eyebrow) {
-    font-size: 16px;
+  .lead-modal {
+    padding: 14px;
+  }
+
+  .lead-modal-dialog {
+    max-height: calc(100vh - 28px);
+  }
+
+  .lead-modal-head {
+    padding: 28px 24px 0;
+  }
+
+  .lead-modal-head h2 {
+    font-size: 24px;
   }
 }
 
@@ -1598,8 +1715,7 @@ img {
 
   .section-title h2,
   .section-heading h2,
-  .contact-copy h2,
-  .register-copy h1 {
+  .contact-copy h2 {
     font-size: 28px;
     white-space: normal;
   }

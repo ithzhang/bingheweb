@@ -29,26 +29,18 @@
         <span></span>
         <span></span>
       </button>
+      <a class="register-close" href="index.html" aria-label="关闭登记页面">×</a>
     </header>
 
     <main>
       <section class="register-hero section-shell light">
         <div class="section-inner register-layout">
-          <div class="register-copy reveal">
-            <p class="eyebrow">CUSTOMER REGISTRATION</p>
-            <h1>登记您的业务诉求</h1>
-            <p>请留下客户名称、联系电话和具体诉求，信息提交后会同步到秉赫业务钉钉群，方便顾问及时跟进。</p>
-            <div class="register-meta">
-              <span>AI搜索优化</span>
-              <span>SEO关键词</span>
-              <span>抖音代运营</span>
-              <span>爱采购运营</span>
-              <span>软件开发</span>
-              <span>网站建设</span>
-            </div>
-          </div>
-
           <form class="lead-form reveal" data-lead-form novalidate>
+            <div class="form-field hp-field" aria-hidden="true">
+              <label for="website">官网</label>
+              <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
             <div class="form-field">
               <label for="customerName">客户名称</label>
               <input id="customerName" name="customerName" type="text" autocomplete="organization" maxlength="60" placeholder="请输入公司或客户名称" required>

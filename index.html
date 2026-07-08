@@ -23,7 +23,6 @@
         <a href="#services">服务能力</a>
         <a href="#process">交付流程</a>
         <a href="#cases">解决方案</a>
-        <a href="register.html">登记信息</a>
         <a href="#contact">联系我们</a>
       </nav>
       <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">
@@ -50,6 +49,10 @@
         <span class="float-icon">@</span>
         <b>关于</b>
       </a>
+      <button class="float-register" type="button" data-register-open aria-label="登记信息">
+        <span class="float-icon">+</span>
+        <b>登记</b>
+      </button>
     </aside>
 
     <section class="chatbot-panel" data-chatbot aria-label="智能客服对话" aria-hidden="true">
@@ -90,7 +93,7 @@
             <h1>杭州秉赫信息技术有限公司</h1>
             <p class="hero-lede">面向传统企业与成长型企业，提供AI搜索优化、SEO关键词优化、短视频代运营、B2B平台运营与软件开发服务，帮助企业把线上曝光转化为可跟进的商机。</p>
             <div class="hero-actions">
-              <a class="btn primary" href="register.html">登记需求</a>
+              <button class="btn primary" type="button" data-register-open>登记需求</button>
               <a class="btn ghost" href="#services">查看服务</a>
             </div>
           </div>
@@ -321,11 +324,53 @@
               <p class="eyebrow">LOCATION</p>
               <h3>杭州秉赫信息技术有限公司</h3>
               <p>杭州市西湖区晴川街425号晴川大厦F5层</p>
+              <div class="map-actions">
+                <a class="btn primary" href="https://uri.amap.com/search?keyword=%E6%9D%AD%E5%B7%9E%E7%A7%89%E8%B5%AB%E4%BF%A1%E6%81%AF%E6%8A%80%E6%9C%AF%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8%20%E6%9D%AD%E5%B7%9E%E5%B8%82%E8%A5%BF%E6%B9%96%E5%8C%BA%E6%99%B4%E5%B7%9D%E8%A1%97425%E5%8F%B7%E6%99%B4%E5%B7%9D%E5%A4%A7%E5%8E%A6F5%E5%B1%82" target="_blank" rel="nofollow noopener">打开高德地图</a>
+              </div>
             </div>
           </div>
         </div>
       </section>
     </main>
+
+    <section class="lead-modal" data-lead-modal aria-hidden="true" aria-label="登记信息弹窗">
+      <div class="lead-modal-backdrop" data-register-close></div>
+      <div class="lead-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="leadModalTitle">
+        <button class="lead-modal-close" type="button" data-register-close aria-label="关闭登记信息">×</button>
+        <div class="lead-modal-head">
+          <p class="eyebrow">CUSTOMER REGISTRATION</p>
+          <h2 id="leadModalTitle">登记信息</h2>
+        </div>
+        <form class="lead-form modal-form" data-lead-form novalidate>
+          <div class="form-field hp-field" aria-hidden="true">
+            <label for="modalWebsite">官网</label>
+            <input id="modalWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="form-field">
+            <label for="modalCustomerName">客户名称</label>
+            <input id="modalCustomerName" name="customerName" type="text" autocomplete="organization" maxlength="60" placeholder="请输入公司或客户名称" required>
+            <p class="field-error" data-error-for="customerName"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="modalPhone">联系电话</label>
+            <input id="modalPhone" name="phone" type="tel" autocomplete="tel" maxlength="18" placeholder="请输入手机号或固定电话" required>
+            <p class="field-hint">支持 11 位手机号，或区号加固定电话，例如 0571-88888888。</p>
+            <p class="field-error" data-error-for="phone"></p>
+          </div>
+
+          <div class="form-field">
+            <label for="modalRequest">诉求</label>
+            <textarea id="modalRequest" name="request" rows="5" maxlength="600" placeholder="请简要描述咨询方向、行业背景或希望解决的问题" required></textarea>
+            <p class="field-error" data-error-for="request"></p>
+          </div>
+
+          <button class="btn primary form-submit" type="submit" data-submit-button>提交登记</button>
+          <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
 
     <footer class="site-footer">
       <p>Copyright © 杭州秉赫信息技术有限公司. All Rights Reserved.</p>

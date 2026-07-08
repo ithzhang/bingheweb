@@ -38,7 +38,8 @@ function getFormValues() {
   return {
     customerName: String(formData.get("customerName") || "").trim(),
     phone: normalizePhone(String(formData.get("phone") || "").trim()),
-    request: String(formData.get("request") || "").trim()
+    request: String(formData.get("request") || "").trim(),
+    website: String(formData.get("website") || "").trim()
   };
 }
 
@@ -74,10 +75,20 @@ function setStatus(message, type = "") {
 }
 
 async function submitLead(values) {
+  const tokenResponse = await fetch("/api/lead-token");
+  const token = await tokenResponse.json().catch(() => ({}));
+
+  if (!tokenResponse.ok || !token.ok) {
+    throw new Error(token.message || "服务异常，请重试");
+  }
+
   const response = await fetch("/api/lead", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-Lead-Timestamp": String(token.timestamp),
+      "X-Lead-Nonce": token.nonce,
+      "X-Lead-Signature": token.signature
     },
     body: JSON.stringify(values)
   });
@@ -85,7 +96,7 @@ async function submitLead(values) {
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok || !result.ok) {
-    throw new Error(result.message || "提交失败，请稍后再试。");
+    throw new Error(result.message || "服务异常，请重试");
   }
 
   return result;
@@ -126,7 +137,7 @@ form.addEventListener("submit", async (event) => {
     setStatus("登记成功，我们会尽快联系您。", "success");
   } catch (error) {
     const message = error.message === "Failed to fetch"
-      ? "提交接口暂不可用，请确认站点已部署服务端 /api/lead 接口。"
+      ? "服务异常，请重试"
       : error.message;
     setStatus(message, "error");
   } finally {

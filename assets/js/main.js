@@ -74,19 +74,26 @@ const chatbot = document.querySelector("[data-chatbot]");
 const chatBody = document.querySelector("[data-chat-body]");
 const chatTime = document.querySelector("[data-chat-time]");
 const chatOptionButtons = document.querySelectorAll("[data-chat-option]");
+const registerOpenButtons = document.querySelectorAll("[data-register-open]");
+const registerCloseButtons = document.querySelectorAll("[data-register-close]");
+const leadModal = document.querySelector("[data-lead-modal]");
+const leadForm = document.querySelector("[data-lead-form]");
+const leadSubmitButton = document.querySelector("[data-submit-button]");
+const leadFormStatus = document.querySelector("[data-form-status]");
+const leadPhonePattern = /^(?:1[3-9]\d{9}|0\d{2,3}-?\d{7,8})$/;
 
 const chatReplies = {
   cases: {
     label: "咨询产品和同行案例",
-    reply: "我们主要提供AI搜索优化、SEO关键词优化、抖音代运营、百度爱采购代运营、软件开发和高端网站建设。同行案例通常会结合行业、产品客单价、获客渠道和投放阶段来拆解，您可以留下行业方向，我们会安排顾问给您匹配相近案例。"
+    reply: "我们为各行业企业提供一站式全链路数字化增长解决方案，业务版图覆盖搜索引擎营销（SEM/SEO 全域投放优化）、短视频全域内容创作与流量投放、全周期品牌声誉塑造与全域品牌推广，是多家大型企业深度合作提供商。请您提供下您的公司名称和联系电话，给您具体介绍。"
   },
   solution: {
     label: "咨询营销与解决方案",
-    reply: "我们会先看企业当前的官网、搜索曝光、短视频账号、B2B平台和线索承接情况，再给出AI搜索优化、SEO内容建设、短视频获客、爱采购运营或官网升级的组合方案，目标是把曝光转成可跟进的商机。"
+    reply: "我们提供国内营销与销售解决方案，让企业实现AI时代的快速增长！请您提供下公司名称和联系电话，给您具体介绍。"
   },
   agent: {
     label: "咨询如何代理产品",
-    reply: "代理合作可以围绕区域资源、行业客户、项目交付能力和销售跟进方式来沟通。我们可以提供产品服务包、售前方案、交付支持和客户运营建议，适合有企业客户资源或本地服务能力的合作伙伴。"
+    reply: "请您提供下公司名称和联系电话，渠道经理会给您具体沟通。"
   },
   contact: {
     label: "联系方式",
@@ -184,6 +191,115 @@ function replyToChatOption(optionKey) {
   }, 260);
 }
 
+function openLeadModal() {
+  leadModal.classList.add("open");
+  leadModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("lead-modal-open");
+  window.setTimeout(() => {
+    const firstInput = leadModal.querySelector("input");
+    if (firstInput) {
+      firstInput.focus();
+    }
+  }, 80);
+}
+
+function closeLeadModal() {
+  leadModal.classList.remove("open");
+  leadModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("lead-modal-open");
+}
+
+function getLeadErrorNode(fieldName) {
+  return leadForm.querySelector(`[data-error-for="${fieldName}"]`);
+}
+
+function setLeadError(fieldName, message) {
+  const errorNode = getLeadErrorNode(fieldName);
+
+  if (errorNode) {
+    errorNode.textContent = message;
+  }
+}
+
+function clearLeadErrors() {
+  leadForm.querySelectorAll("[data-error-for]").forEach((node) => {
+    node.textContent = "";
+  });
+}
+
+function normalizeLeadPhone(phone) {
+  return phone.replace(/\s+/g, "").replace(/[()（）]/g, "");
+}
+
+function getLeadFormValues() {
+  const formData = new FormData(leadForm);
+
+  return {
+    customerName: String(formData.get("customerName") || "").trim(),
+    phone: normalizeLeadPhone(String(formData.get("phone") || "").trim()),
+    request: String(formData.get("request") || "").trim(),
+    website: String(formData.get("website") || "").trim()
+  };
+}
+
+function validateLeadForm(values) {
+  let valid = true;
+  clearLeadErrors();
+
+  if (!values.customerName) {
+    setLeadError("customerName", "请输入客户名称。");
+    valid = false;
+  }
+
+  if (!values.phone) {
+    setLeadError("phone", "请输入联系电话。");
+    valid = false;
+  } else if (!leadPhonePattern.test(values.phone)) {
+    setLeadError("phone", "电话格式不正确，请填写 11 位手机号或区号加固定电话。");
+    valid = false;
+  }
+
+  if (!values.request) {
+    setLeadError("request", "请输入诉求。");
+    valid = false;
+  }
+
+  return valid;
+}
+
+function setLeadStatus(message, type = "") {
+  leadFormStatus.textContent = message;
+  leadFormStatus.classList.toggle("success", type === "success");
+  leadFormStatus.classList.toggle("error", type === "error");
+}
+
+async function submitLead(values) {
+  const tokenResponse = await fetch("/api/lead-token");
+  const token = await tokenResponse.json().catch(() => ({}));
+
+  if (!tokenResponse.ok || !token.ok) {
+    throw new Error(token.message || "服务异常，请重试");
+  }
+
+  const response = await fetch("/api/lead", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Lead-Timestamp": String(token.timestamp),
+      "X-Lead-Nonce": token.nonce,
+      "X-Lead-Signature": token.signature
+    },
+    body: JSON.stringify(values)
+  });
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || !result.ok) {
+    throw new Error(result.message || "服务异常，请重试");
+  }
+
+  return result;
+}
+
 navToggle.addEventListener("click", () => {
   const nextState = !nav.classList.contains("open");
   nav.classList.toggle("open", nextState);
@@ -218,9 +334,53 @@ chatOptionButtons.forEach((button) => {
   });
 });
 
+registerOpenButtons.forEach((button) => {
+  button.addEventListener("click", openLeadModal);
+});
+
+registerCloseButtons.forEach((button) => {
+  button.addEventListener("click", closeLeadModal);
+});
+
+if (leadForm) {
+  leadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const values = getLeadFormValues();
+
+    if (!validateLeadForm(values)) {
+      setLeadStatus("请先修正表单中的提示。", "error");
+      return;
+    }
+
+    leadSubmitButton.disabled = true;
+    leadSubmitButton.textContent = "提交中...";
+    setLeadStatus("正在提交，请稍候。");
+
+    try {
+      await submitLead(values);
+      leadForm.reset();
+      clearLeadErrors();
+      setLeadStatus("登记成功，我们会尽快联系您。", "success");
+    } catch (error) {
+      const message = error.message === "Failed to fetch"
+        ? "服务异常，请重试"
+        : error.message;
+      setLeadStatus(message, "error");
+    } finally {
+      leadSubmitButton.disabled = false;
+      leadSubmitButton.textContent = "提交登记";
+    }
+  });
+}
+
 document.addEventListener("keydown", (event) => {
   if (chatbot && event.key === "Escape" && chatbot.classList.contains("open")) {
     closeChatbot();
+  }
+
+  if (leadModal && event.key === "Escape" && leadModal.classList.contains("open")) {
+    closeLeadModal();
   }
 });
 
