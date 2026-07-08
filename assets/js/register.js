@@ -134,7 +134,9 @@ form.addEventListener("submit", async (event) => {
     await submitLead(values);
     form.reset();
     clearErrors();
-    setStatus("登记成功，我们会尽快联系您。", "success");
+    setStatus("");
+    alert("登记成功，我们会尽快联系您。");
+    window.location.href = "index.html";
   } catch (error) {
     const message = error.message === "Failed to fetch"
       ? "服务异常，请重试"

@@ -71,6 +71,7 @@ const sections = document.querySelectorAll("[data-section]");
 const chatOpenButton = document.querySelector("[data-chat-open]");
 const chatCloseButton = document.querySelector("[data-chat-close]");
 const chatbot = document.querySelector("[data-chatbot]");
+const chatDragHandle = document.querySelector("[data-chat-drag-handle]");
 const chatBody = document.querySelector("[data-chat-body]");
 const chatTime = document.querySelector("[data-chat-time]");
 const chatOptionButtons = document.querySelectorAll("[data-chat-option]");
@@ -81,6 +82,7 @@ const leadForm = document.querySelector("[data-lead-form]");
 const leadSubmitButton = document.querySelector("[data-submit-button]");
 const leadFormStatus = document.querySelector("[data-form-status]");
 const leadPhonePattern = /^(?:1[3-9]\d{9}|0\d{2,3}-?\d{7,8})$/;
+let chatDragState = null;
 
 const chatReplies = {
   cases: {
@@ -97,7 +99,22 @@ const chatReplies = {
   },
   contact: {
     label: "联系方式",
-    reply: "您可以直接电话联系：华东地区陈总 <a href=\"tel:18958065538\">18958065538</a>；其余全域李总 <a href=\"tel:13113577393\">13113577393</a>。也可以先说明您的行业、城市和想咨询的方向，我们会尽快安排对接。"
+    reply: `
+      <div class="chat-reply">
+        <p class="chat-reply-title">您可以直接电话联系：</p>
+        <div class="chat-contact-line">
+          <span>华东地区</span>
+          <b>陈总</b>
+          <a href="tel:18958065538">18958065538</a>
+        </div>
+        <div class="chat-contact-line">
+          <span>其余全域</span>
+          <b>李总</b>
+          <a href="tel:13113577393">13113577393</a>
+        </div>
+        <p class="chat-reply-note">也可以先说明您的行业、城市和想咨询的方向，我们会尽快安排对接。</p>
+      </div>
+    `
   }
 };
 
@@ -145,11 +162,96 @@ function openChatbot() {
   chatbot.classList.add("open");
   chatbot.setAttribute("aria-hidden", "false");
   updateChatTime();
+  window.requestAnimationFrame(() => {
+    keepChatbotInViewport();
+    scrollChatToBottom();
+  });
 }
 
 function closeChatbot() {
   chatbot.classList.remove("open");
   chatbot.setAttribute("aria-hidden", "true");
+}
+
+function clampChatbotPosition(left, top) {
+  const rect = chatbot.getBoundingClientRect();
+  const margin = 10;
+  const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+  const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+
+  return {
+    left: Math.min(Math.max(left, margin), maxLeft),
+    top: Math.min(Math.max(top, margin), maxTop)
+  };
+}
+
+function setChatbotPosition(left, top) {
+  const nextPosition = clampChatbotPosition(left, top);
+
+  chatbot.style.left = `${nextPosition.left}px`;
+  chatbot.style.top = `${nextPosition.top}px`;
+  chatbot.style.right = "auto";
+  chatbot.style.bottom = "auto";
+  chatbot.style.transform = "none";
+}
+
+function keepChatbotInViewport() {
+  if (!chatbot || !chatbot.style.left || !chatbot.style.top) {
+    return;
+  }
+
+  setChatbotPosition(parseFloat(chatbot.style.left), parseFloat(chatbot.style.top));
+}
+
+function startChatbotDrag(event) {
+  if (!chatbot || !chatbot.classList.contains("open")) {
+    return;
+  }
+
+  if (event.pointerType === "mouse" && event.button !== 0) {
+    return;
+  }
+
+  if (event.target.closest("button, a, input, textarea, select")) {
+    return;
+  }
+
+  const rect = chatbot.getBoundingClientRect();
+  chatDragState = {
+    pointerId: event.pointerId,
+    offsetX: event.clientX - rect.left,
+    offsetY: event.clientY - rect.top
+  };
+
+  chatbot.classList.add("is-dragging");
+  setChatbotPosition(rect.left, rect.top);
+
+  if (chatDragHandle.setPointerCapture) {
+    chatDragHandle.setPointerCapture(event.pointerId);
+  }
+
+  event.preventDefault();
+}
+
+function moveChatbot(event) {
+  if (!chatDragState || event.pointerId !== chatDragState.pointerId) {
+    return;
+  }
+
+  setChatbotPosition(
+    event.clientX - chatDragState.offsetX,
+    event.clientY - chatDragState.offsetY
+  );
+  event.preventDefault();
+}
+
+function stopChatbotDrag(event) {
+  if (!chatDragState || event.pointerId !== chatDragState.pointerId) {
+    return;
+  }
+
+  chatbot.classList.remove("is-dragging");
+  chatDragState = null;
 }
 
 function scrollChatToBottom() {
@@ -170,7 +272,7 @@ function appendChatMessage(type, content) {
 
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble";
-  bubble.innerHTML = `<p>${content}</p>`;
+  bubble.innerHTML = content.trim().startsWith("<") ? content : `<p>${content}</p>`;
   row.appendChild(bubble);
   chatBody.insertBefore(row, chatTime);
   scrollChatToBottom();
@@ -328,6 +430,13 @@ if (chatCloseButton && chatbot) {
   chatCloseButton.addEventListener("click", closeChatbot);
 }
 
+if (chatDragHandle && chatbot) {
+  chatDragHandle.addEventListener("pointerdown", startChatbotDrag);
+  window.addEventListener("pointermove", moveChatbot);
+  window.addEventListener("pointerup", stopChatbotDrag);
+  window.addEventListener("pointercancel", stopChatbotDrag);
+}
+
 chatOptionButtons.forEach((button) => {
   button.addEventListener("click", () => {
     replyToChatOption(button.dataset.chatOption);
@@ -361,7 +470,9 @@ if (leadForm) {
       await submitLead(values);
       leadForm.reset();
       clearLeadErrors();
-      setLeadStatus("登记成功，我们会尽快联系您。", "success");
+      setLeadStatus("");
+      alert("登记成功，我们会尽快联系您。");
+      closeLeadModal();
     } catch (error) {
       const message = error.message === "Failed to fetch"
         ? "服务异常，请重试"
@@ -426,6 +537,8 @@ window.addEventListener("resize", () => {
   if (window.innerWidth > 780) {
     closeNav();
   }
+
+  keepChatbotInViewport();
 });
 
 setHeaderState();

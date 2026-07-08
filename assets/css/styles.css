@@ -272,18 +272,19 @@ img {
   position: fixed;
   z-index: 50;
   right: 88px;
-  top: calc(42% - 48px);
+  top: 50%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: min(370px, calc(100vw - 118px));
-  max-height: min(620px, calc(100vh - 96px));
+  height: min(620px, calc(100vh - 96px));
+  max-height: calc(100vh - 96px);
   overflow: hidden;
   border: 1px solid rgba(15, 17, 18, 0.08);
   background: #f4f4f4;
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
   opacity: 0;
   pointer-events: none;
-  transform: translateX(16px) scale(0.98);
+  transform: translate(16px, -50%) scale(0.98);
   transform-origin: right center;
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
@@ -291,7 +292,11 @@ img {
 .chatbot-panel.open {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(0) scale(1);
+  transform: translate(0, -50%) scale(1);
+}
+
+.chatbot-panel.is-dragging {
+  transition: none;
 }
 
 .chatbot-header {
@@ -302,6 +307,13 @@ img {
   padding: 10px 14px 10px 18px;
   background: #111314;
   color: var(--white);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.chatbot-panel.is-dragging .chatbot-header {
+  cursor: grabbing;
 }
 
 .chatbot-header div {
@@ -336,6 +348,7 @@ img {
   display: grid;
   align-content: start;
   gap: 12px;
+  min-height: 0;
   overflow-y: auto;
   padding: 14px 14px 18px;
   color: #1f2326;
@@ -452,6 +465,61 @@ img {
 .chat-bubble a {
   color: var(--red);
   font-weight: 800;
+}
+
+.chat-reply {
+  display: grid;
+  gap: 10px;
+}
+
+.chat-reply-title,
+.chat-reply-note {
+  margin: 0;
+}
+
+.chat-reply-title {
+  color: #1f2326;
+  font-weight: 800;
+}
+
+.chat-reply-note {
+  color: #4b5054;
+}
+
+.chat-reply ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-reply li,
+.chat-contact-line {
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  background: #f7f7f7;
+  border-left: 3px solid rgba(215, 59, 49, 0.82);
+}
+
+.chat-reply li span,
+.chat-contact-line span {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chat-reply li b,
+.chat-contact-line b {
+  color: #2b3034;
+  font-weight: 600;
+}
+
+.chat-contact-line a {
+  width: max-content;
+  font-size: 18px;
+  line-height: 1.25;
 }
 
 .chat-row.user .chat-bubble {
@@ -1074,38 +1142,48 @@ img {
 
 .contact {
   min-height: 78vh;
-  padding: 100px 0;
+  padding: 82px 0;
+}
+
+.contact .section-inner {
+  width: min(100% - 260px, 1180px);
 }
 
 .contact-layout {
   display: grid;
-  grid-template-columns: 1fr 480px;
-  gap: 80px;
-  align-items: center;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(480px, 1.1fr);
+  gap: 22px 56px;
+  align-items: stretch;
+}
+
+.contact-copy {
+  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 .contact-copy p:not(.eyebrow) {
-  max-width: 620px;
+  max-width: 760px;
   color: var(--muted);
   font-size: 18px;
 }
 
 .contact-box {
-  padding: 34px;
+  align-self: stretch;
+  padding: 24px 28px;
   background: var(--white);
   box-shadow: 0 24px 60px rgba(18, 22, 24, 0.12);
 }
 
 .contact-box dl {
   display: grid;
-  gap: 18px;
+  gap: 10px;
   margin: 0;
 }
 
 .contact-box dl div {
   display: grid;
-  gap: 4px;
-  padding-bottom: 16px;
+  gap: 5px;
+  padding-bottom: 11px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -1118,16 +1196,16 @@ img {
 .contact-box dd {
   margin: 0;
   color: #2d3134;
+  font-size: 15px;
+  line-height: 1.52;
   overflow-wrap: anywhere;
 }
 
 .contact-map {
   display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: minmax(360px, 0.85fr) 1fr;
-  gap: 0;
+  grid-template-rows: auto auto;
+  align-self: stretch;
   overflow: hidden;
-  min-height: 280px;
   background: var(--white);
   box-shadow: 0 24px 60px rgba(18, 22, 24, 0.12);
 }
@@ -1135,40 +1213,26 @@ img {
 .map-visual {
   position: relative;
   overflow: hidden;
-  min-height: 280px;
+  height: clamp(260px, 24vw, 320px);
+  min-height: 0;
   background: #ece9e4;
 }
 
 .map-visual img {
+  display: block;
   width: 100%;
   height: 100%;
-  min-height: 280px;
   object-fit: cover;
-}
-
-.map-content {
-  display: grid;
-  align-content: center;
-  padding: 42px 48px;
-}
-
-.map-content h3 {
-  margin: 0;
-  font-size: 30px;
-  line-height: 1.25;
-}
-
-.map-content p:not(.eyebrow) {
-  margin: 14px 0 0;
-  color: #45494d;
-  font-size: 17px;
 }
 
 .map-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 26px;
+  margin-top: 0;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--white);
 }
 
 .register-page {
@@ -1441,6 +1505,10 @@ body.lead-modal-open {
     grid-template-columns: 1fr;
   }
 
+  .contact-copy {
+    grid-column: auto;
+  }
+
   .hero-panel {
     max-width: 520px;
   }
@@ -1465,10 +1533,6 @@ body.lead-modal-open {
 
   .process-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .contact-map {
-    grid-template-columns: 1fr;
   }
 
 }
@@ -1558,7 +1622,13 @@ body.lead-modal-open {
     top: auto;
     bottom: 118px;
     width: min(360px, calc(100vw - 28px));
-    max-height: min(560px, calc(100vh - 150px));
+    height: min(560px, calc(100vh - 150px));
+    max-height: calc(100vh - 150px);
+    transform: translateY(16px) scale(0.98);
+  }
+
+  .chatbot-panel.open {
+    transform: translateY(0) scale(1);
   }
 
   .chat-card,
@@ -1651,6 +1721,10 @@ body.lead-modal-open {
     padding: 76px 0;
   }
 
+  .contact .section-inner {
+    width: min(100% - 32px, 1180px);
+  }
+
   .process-grid {
     grid-template-columns: 1fr;
   }
@@ -1668,15 +1742,11 @@ body.lead-modal-open {
   }
 
   .map-visual {
-    min-height: 220px;
+    min-height: 260px;
   }
 
-  .map-content {
-    padding: 28px 24px;
-  }
-
-  .map-content h3 {
-    font-size: 24px;
+  .map-actions {
+    padding: 18px 20px 20px;
   }
 
   .map-actions .btn {
@@ -1746,9 +1816,12 @@ body.lead-modal-open {
   }
 
   .chatbot-panel {
+    left: 10px;
     right: 10px;
     bottom: 116px;
-    width: calc(100vw - 20px);
+    width: auto;
+    height: min(520px, calc(100vh - 140px));
+    max-height: calc(100vh - 140px);
   }
 
   .chatbot-body {
