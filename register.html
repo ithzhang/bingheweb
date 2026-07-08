@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登记信息 - 杭州秉赫信息技术有限公司</title>
+    <meta name="description" content="登记客户名称、联系电话和业务诉求，杭州秉赫信息技术有限公司将尽快安排顾问对接。">
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body class="register-page">
+    <header class="site-header scrolled" data-header>
+      <a class="brand" href="index.html#home" aria-label="杭州秉赫信息技术有限公司首页">
+        <span class="brand-mark">BH</span>
+        <span class="brand-text">
+          <strong>杭州秉赫信息技术有限公司</strong>
+          <small>BINGHE INFORMATION TECHNOLOGY</small>
+        </span>
+      </a>
+      <nav class="main-nav" data-nav aria-label="主导航">
+        <a href="index.html#about">关于秉赫</a>
+        <a href="index.html#services">服务能力</a>
+        <a href="index.html#process">交付流程</a>
+        <a href="index.html#cases">解决方案</a>
+        <a href="register.html" aria-current="page">登记信息</a>
+        <a href="index.html#contact">联系我们</a>
+      </nav>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-label="打开菜单" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="register-hero section-shell light">
+        <div class="section-inner register-layout">
+          <div class="register-copy reveal">
+            <p class="eyebrow">CUSTOMER REGISTRATION</p>
+            <h1>登记您的业务诉求</h1>
+            <p>请留下客户名称、联系电话和具体诉求，信息提交后会同步到秉赫业务钉钉群，方便顾问及时跟进。</p>
+            <div class="register-meta">
+              <span>AI搜索优化</span>
+              <span>SEO关键词</span>
+              <span>抖音代运营</span>
+              <span>爱采购运营</span>
+              <span>软件开发</span>
+              <span>网站建设</span>
+            </div>
+          </div>
+
+          <form class="lead-form reveal" data-lead-form novalidate>
+            <div class="form-field">
+              <label for="customerName">客户名称</label>
+              <input id="customerName" name="customerName" type="text" autocomplete="organization" maxlength="60" placeholder="请输入公司或客户名称" required>
+              <p class="field-error" data-error-for="customerName"></p>
+            </div>
+
+            <div class="form-field">
+              <label for="phone">联系电话</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="18" placeholder="请输入手机号或固定电话" required>
+              <p class="field-hint">支持 11 位手机号，或区号加固定电话，例如 0571-88888888。</p>
+              <p class="field-error" data-error-for="phone"></p>
+            </div>
+
+            <div class="form-field">
+              <label for="request">诉求</label>
+              <textarea id="request" name="request" rows="6" maxlength="600" placeholder="请简要描述咨询方向、行业背景或希望解决的问题" required></textarea>
+              <p class="field-error" data-error-for="request"></p>
+            </div>
+
+            <button class="btn primary form-submit" type="submit" data-submit-button>提交登记</button>
+            <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Copyright © 杭州秉赫信息技术有限公司. All Rights Reserved.</p>
+      <p><a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">浙ICP备2026043314号-1</a></p>
+    </footer>
+
+    <script src="assets/js/register.js"></script>
+  </body>
+</html>
