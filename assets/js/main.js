@@ -81,8 +81,10 @@ const leadModal = document.querySelector("[data-lead-modal]");
 const leadForm = document.querySelector("[data-lead-form]");
 const leadSubmitButton = document.querySelector("[data-submit-button]");
 const leadFormStatus = document.querySelector("[data-form-status]");
+const siteFooter = document.querySelector(".site-footer");
 const leadPhonePattern = /^(?:1[3-9]\d{9}|0\d{2,3}-?\d{7,8})$/;
 let chatDragState = null;
+let leadAutoOpened = false;
 
 const chatReplies = {
   cases: {
@@ -98,7 +100,7 @@ const chatReplies = {
     reply: "请您提供下公司名称和联系电话，渠道经理会给您具体沟通。"
   },
   contact: {
-    label: "联系方式",
+    label: "联系我们",
     reply: `
       <div class="chat-reply">
         <p class="chat-reply-title">您可以直接电话联系：</p>
@@ -171,6 +173,18 @@ function openChatbot() {
 function closeChatbot() {
   chatbot.classList.remove("open");
   chatbot.setAttribute("aria-hidden", "true");
+}
+
+function closeChatbotOnOutsideClick(event) {
+  if (!chatbot || !chatbot.classList.contains("open")) {
+    return;
+  }
+
+  if (chatbot.contains(event.target) || chatOpenButton?.contains(event.target)) {
+    return;
+  }
+
+  closeChatbot();
 }
 
 function clampChatbotPosition(left, top) {
@@ -311,6 +325,15 @@ function closeLeadModal() {
   document.body.classList.remove("lead-modal-open");
 }
 
+function openLeadModalFromBottom() {
+  if (!leadModal || leadAutoOpened || leadModal.classList.contains("open")) {
+    return;
+  }
+
+  leadAutoOpened = true;
+  openLeadModal();
+}
+
 function getLeadErrorNode(fieldName) {
   return leadForm.querySelector(`[data-error-for="${fieldName}"]`);
 }
@@ -430,6 +453,10 @@ if (chatCloseButton && chatbot) {
   chatCloseButton.addEventListener("click", closeChatbot);
 }
 
+if (chatbot) {
+  document.addEventListener("pointerdown", closeChatbotOnOutsideClick);
+}
+
 if (chatDragHandle && chatbot) {
   chatDragHandle.addEventListener("pointerdown", startChatbotDrag);
   window.addEventListener("pointermove", moveChatbot);
@@ -450,6 +477,28 @@ registerOpenButtons.forEach((button) => {
 registerCloseButtons.forEach((button) => {
   button.addEventListener("click", closeLeadModal);
 });
+
+if (leadModal) {
+  leadModal.addEventListener("click", (event) => {
+    if (!event.target.closest(".lead-modal-dialog")) {
+      closeLeadModal();
+    }
+  });
+}
+
+if (siteFooter && leadModal) {
+  const leadAutoOpenObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        openLeadModalFromBottom();
+        leadAutoOpenObserver.disconnect();
+      }
+    },
+    { threshold: 0.2 }
+  );
+
+  leadAutoOpenObserver.observe(siteFooter);
+}
 
 if (leadForm) {
   leadForm.addEventListener("submit", async (event) => {
